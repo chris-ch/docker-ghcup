@@ -1,83 +1,65 @@
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 
-
-ARG GHCUP_BIN_DIR=/root/.ghcup/bin
-# /root happens to be $HOME but we can't use the directly in an ARG
 ARG GHCUP_DWN_URL=https://downloads.haskell.org/~ghcup/x86_64-linux-ghcup
-ARG GHC_VERSION=8.10.2
-
 
 ARG PATH
 RUN test -n ${PATH}
-ENV PATH=${PATH}:${GHCUP_BIN_DIR}
+ENV PATH=${PATH}
 ENV LANG=C.UTF-8
 ENV BOOTSTRAP_HASKELL_NONINTERACTIVE=1
 
-
 RUN \
-  apt-get update && \
-  apt-get upgrade -y && \
-  apt-get install -y \
-    apt-transport-https \
-    ca-certificates \
-    curl \
-    gnupg2
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        curl \
+        libnuma-dev \
+        zlib1g-dev \
+        libgmp-dev \
+        libgmp10 \
+        git \
+        wget \
+        lsb-release \
+        software-properties-common \
+        gnupg2 \
+        apt-transport-https \
+        gcc \
+        autoconf \
+        automake \
+        libffi-dev \
+        libffi8 \
+        libgmp-dev \
+        libgmp10 \
+        libncurses-dev \
+        libncurses5 \
+        libtinfo5 \
+        libblas3 \
+        liblapack3 \
+        liblapack-dev \
+        libblas-dev \
+        xz-utils \
+        build-essential
 
+# install gpg keys
+ARG GPG_KEY=7784930957807690A66EBDBE3786C5262ECB4A3F
+RUN gpg --batch --keyserver keys.openpgp.org --recv-keys $GPG_KEY
 
+# install ghcup
 RUN \
-  curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-  curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list
-# MSSQL packages
+    curl ${GHCUP_DWN_URL} > /usr/bin/ghcup && \
+    chmod +x /usr/bin/ghcup && \
+    ghcup config set gpg-setting GPGStrict
 
+ARG VERSION_GHC=9.8.1
+ARG VERSION_CABAL=latest
+ARG VERSION_STACK=latest
 
+# install GHC, cabal and stack
 RUN \
-  apt-get update && \
-  apt-get upgrade -y && \
-  ACCEPT_EULA=Y apt-get install -y \
-    default-libmysqlclient-dev \
-    default-mysql-client \
-    freetds-dev \
-    g++ \
-    gcc \
-    git \
-    libc-dev \
-    libghc-pcre-light-dev \
-    libghc-hsopenssl-dev \
-    libgmp-dev \
-    libgssapi-krb5-2 \
-    libkrb5-dev \
-    libpq-dev \
-    locales \
-    make \
-    msodbcsql17 \
-    mssql-tools \
-    unixodbc-dev
+    ghcup -v install ghc --isolate /usr/local --force ${GHC} && \
+    ghcup -v install cabal --isolate /usr/local/bin --force ${VERSION_CABAL} && \
+    ghcup -v install stack --isolate /usr/local/bin --force ${VERSION_STACK} && \
+    ghcup install hls
 
-
-RUN \
-  locale-gen en_US.UTF-8
-
-
-RUN \
-  mkdir -p ${GHCUP_BIN_DIR}
-
-
-RUN \
-	curl -sSL ${GHCUP_DWN_URL} > ${GHCUP_BIN_DIR}/ghcup && \
-	chmod +x ${GHCUP_BIN_DIR}/ghcup
-
-
-RUN \
-  ghcup upgrade && \
-  ghcup install cabal && \
-  ghcup install ghc ${GHC_VERSION} && \
-  ghcup set ghc ${GHC_VERSION} && \
-  ghcup install hls
-
-
-RUN \
-  cabal update && \
-  cabal install hlint stylish-haskell fourmolu
-
-
-# docker run --rm -it --name ghcup -v `pwd`:/workdir -w /workdir ghcup bash
+ARG USER_NAME=haskell
+RUN useradd --no-log-init --create-home --shell /bin/bash ${USER_NAME}
+WORKDIR /home/${USER_NAME}
