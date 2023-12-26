@@ -37,6 +37,7 @@ RUN \
         liblapack-dev \
         libblas-dev \
         xz-utils \
+        ssh \
         build-essential
 
 # install gpg keys
