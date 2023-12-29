@@ -38,6 +38,7 @@ RUN \
         libblas-dev \
         xz-utils \
         ssh \
+        vim \
         build-essential
 
 # install gpg keys
@@ -53,16 +54,9 @@ RUN \
     chmod +x /usr/bin/ghcup && \
     ghcup config set gpg-setting GPGStrict
 
-ARG VERSION_GHC=9.8.1
+ARG VERSION_GHC=9.6.3
 ARG VERSION_CABAL=latest
 ARG VERSION_STACK=latest
-
-# install GHC, cabal and stack
-RUN \
-    ghcup -v install ghc --isolate /usr/local --force ${VERSION_GHC} && \
-    ghcup -v install cabal --isolate /usr/local/bin --force ${VERSION_CABAL} && \
-    ghcup -v install stack --isolate /usr/local/bin --force ${VERSION_STACK} && \
-    ghcup install hls
 
 ARG USER_NAME=haskell
 ARG USER_UID=1000
@@ -81,3 +75,12 @@ RUN groupadd docker && \
     usermod -aG docker ${USER_NAME}
 
 USER ${USER_NAME}
+
+WORKDIR /home/${USER_NAME}
+
+# install GHC, cabal and stack
+RUN \
+    ghcup -v install ghc --force ${VERSION_GHC} && \
+    ghcup -v install cabal --force ${VERSION_CABAL} && \
+    ghcup -v install stack --force ${VERSION_STACK} && \
+    ghcup install hls
