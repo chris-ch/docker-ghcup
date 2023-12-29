@@ -83,4 +83,7 @@ RUN \
     ghcup -v install ghc --force ${VERSION_GHC} && \
     ghcup -v install cabal --force ${VERSION_CABAL} && \
     ghcup -v install stack --force ${VERSION_STACK} && \
+    ghcup set ghc ${VERSION_GHC} && \
     ghcup install hls
+
+RUN echo -e "\nexport PATH=$PATH:/home/${USER_NAME}/.ghcup/bin\n" >> /home/${USER_NAME}/.bashrc
