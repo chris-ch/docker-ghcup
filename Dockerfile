@@ -54,7 +54,7 @@ RUN \
     chmod +x /usr/bin/ghcup && \
     ghcup config set gpg-setting GPGStrict
 
-ARG VERSION_GHC=9.6.3
+ARG VERSION_GHC=9.4.8
 ARG VERSION_CABAL=latest
 ARG VERSION_STACK=latest
 
