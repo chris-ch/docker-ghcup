@@ -86,4 +86,4 @@ RUN \
     ghcup set ghc ${VERSION_GHC} && \
     ghcup install hls
 
-RUN echo -e "\nexport PATH=$PATH:/home/${USER_NAME}/.ghcup/bin\n" >> /home/${USER_NAME}/.bashrc
+RUN /bin/echo -e "\nexport PATH=$PATH:/home/${USER_NAME}/.ghcup/bin\n" >> /home/${USER_NAME}/.bashrc
