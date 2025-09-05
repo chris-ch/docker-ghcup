@@ -54,9 +54,8 @@ RUN \
     chmod +x /usr/bin/ghcup && \
     ghcup config set gpg-setting GPGStrict
 
-ARG VERSION_GHC=9.4.8
-ARG VERSION_CABAL=latest
-ARG VERSION_STACK=latest
+ARG VERSION_GHC=9.6.7
+ARG VERSION_CABAL=3.12.1.0
 
 ARG USER_NAME=haskell
 ARG USER_UID=1000
@@ -78,11 +77,10 @@ USER ${USER_NAME}
 
 WORKDIR /home/${USER_NAME}
 
-# install GHC, cabal and stack
+# install GHC and cabal
 RUN \
     ghcup -v install ghc --force ${VERSION_GHC} && \
     ghcup -v install cabal --force ${VERSION_CABAL} && \
-    ghcup -v install stack --force ${VERSION_STACK} && \
     ghcup set ghc ${VERSION_GHC} && \
     ghcup install hls
 
